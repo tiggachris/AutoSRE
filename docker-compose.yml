@@ -1,0 +1,42 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: autosre-web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - PORT=5000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=autosre_db
+      - DB_USER=autosre_user
+      - DB_PASSWORD=autosre_password
+      - SECRET_KEY=autosre-secure-secret-key-change-in-prod
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: autosre-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: autosre_db
+      POSTGRES_USER: autosre_user
+      POSTGRES_PASSWORD: autosre_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - autosre_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autosre_user -d autosre_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  autosre_postgres_data:
