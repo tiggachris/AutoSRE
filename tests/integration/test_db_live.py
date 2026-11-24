@@ -1,4 +1,4 @@
-"""Integration tests against live database instance."""
+"""Integration tests against live database instances."""
 import os
 import pytest
 import psycopg2
